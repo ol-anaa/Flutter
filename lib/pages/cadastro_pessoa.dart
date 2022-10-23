@@ -1,10 +1,10 @@
 import 'dart:io';
-import 'package:http/http.dart' as http;
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 
 import 'package:tcc/pages/cadastro_empresa.dart';
-import 'package:tcc/services/CadastroUsuario.dart';
+import 'package:tcc/pages/login.dart';
 
 class SouPessoa extends StatefulWidget {
   const SouPessoa({Key? key}) : super(key: key);
@@ -13,43 +13,30 @@ class SouPessoa extends StatefulWidget {
   State<SouPessoa> createState() => _Pessoa();
 }
 
-//FIXME: _TypeError (type 'Null' is not a subtype of type 'DataModel'), conversar com o professor.
-
-Future<dynamic> submitData(String Nome, String Sobrenome, String CPF, String Email, String Senha, String DtNasci, String Img) async{
-  var response = await http.post(Uri.https('sensor-quali.herokuapp.com', '/api/cadastro_Usuario'), 
-  body: {
-    "nome" : Nome,
-    "sobrenome": Sobrenome,
-    "cpf": CPF,
-    "email": Email,
-    "senha": Senha,
-    "dtnasci": DtNasci,
-    "imagemusuario": Img,
-  });
-
-  var data = response.body;
-  print(data);
-
-  if(response.statusCode == 201){
-    String responseString = response.body;
-    dataModelFromJson(responseString);
-  }
-  else {
-    throw Exception('Erro inesperado...');
-  }
-}
-
 class _Pessoa extends State<SouPessoa> {
   XFile? pessoa;
-   final _formKey = GlobalKey<FormState>();
+  final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
 
-   final TextEditingController _controllerNome = TextEditingController();
-   final TextEditingController _controllerSobrenome = TextEditingController();
-   final TextEditingController _controllerCpf = TextEditingController();
-   final TextEditingController _controllerEmail = TextEditingController();
-   final TextEditingController _controllerSenha = TextEditingController();
-   final TextEditingController _controllerDtNasc = TextEditingController();
-   final TextEditingController _controllerImg = TextEditingController();
+  final TextEditingController _controllerNome = TextEditingController();
+  final TextEditingController _controllerSobrenome = TextEditingController();
+  final TextEditingController _controllerCpf = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
+  final TextEditingController _controllerDtNasc = TextEditingController();
+  final TextEditingController _controllerImg = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -186,7 +173,8 @@ class _Pessoa extends State<SouPessoa> {
                     style: const TextStyle(fontSize: 20),
                     validator: (value) {
                       if (value!.isEmpty ||
-                          !RegExp(r'^\d{3}\x2E\d{3}\x2E\d{3}\x2D\d{2}$').hasMatch(value)) {
+                          !RegExp(r'^\d{3}\x2E\d{3}\x2E\d{3}\x2D\d{2}$')
+                              .hasMatch(value)) {
                         return 'Campo inválido';
                       }
                       return null;
@@ -246,7 +234,7 @@ class _Pessoa extends State<SouPessoa> {
                     height: 5,
                   ),
                   TextFormField(
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.datetime,
                     controller: _controllerDtNasc,
                     autofocus: true,
                     decoration: const InputDecoration(
@@ -261,7 +249,8 @@ class _Pessoa extends State<SouPessoa> {
                     style: const TextStyle(fontSize: 20),
                     validator: (value) {
                       if (value!.isEmpty ||
-                          !RegExp(r"^[0-9]{4}-[0-9]{2}-[0-9]{2}").hasMatch(value)) {
+                          !RegExp(r"^[0-9]{2}/[0-9]{2}/[0-9]{4}")
+                              .hasMatch(value)) {
                         return 'Campo inválido';
                       }
                       return null;
@@ -353,24 +342,33 @@ class _Pessoa extends State<SouPessoa> {
       return;
     }
     _formKey.currentState!.save();
-    Enviar();
+    submitUser();
   }
 
-    Enviar() async {
-    String Nome      = _controllerNome.text;
-    String Sobrenome = _controllerSobrenome.text;
-    String CPF       = _controllerCpf.text;
-    String Senha     = _controllerSenha.text;
-    String Email     = _controllerEmail.text;
-    String DtNasci   = _controllerDtNasc.text;
-    String Img       = _controllerImg.text;
-
-    DataModel data = await submitData(Nome, Sobrenome, CPF, Email, Senha, DtNasci, Img
-    );
-    
-    setState(() {
-      DataModel _dataModel = data;
+  void submitUser() async {
+    Response response = await _dio.post("/api/cadastro_Usuario", data: {
+      "cpf": _controllerCpf.text,
+      "email": _controllerEmail.text,
+      "nome": _controllerNome.text,
+      "sobrenome": _controllerSobrenome.text,
+      "senha": _controllerSenha.text,
+      "dtnasci": _controllerDtNasc.text
     });
+
+    if (response.statusCode == 201) {
+      const snackBar = SnackBar(
+        content: Text('Usuário cadastrado com sucesso!'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => const login(),
+        ),
+      );
+    } else {
+      throw Exception('Erro inesperado...');
+    }
   }
 
   selecionarReserv() async {

@@ -1,11 +1,10 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:page_transition/page_transition.dart';
+import 'package:dio/dio.dart';
 
-import 'package:tcc/pages/Inicio.dart';
 import 'package:tcc/pages/esqueceu_senha.dart';
 import 'package:tcc/pages/cadastro_pessoa.dart';
-import 'package:tcc/services/Login.dart';
+import 'package:tcc/pages/Inicio.dart';
 
 class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
@@ -14,32 +13,25 @@ class login extends StatefulWidget {
   State<login> createState() => _login();
 }
 
-//TODO: Colocar a URL certa e mudar o códiogo de status
-
-Future<dynamic> submitData(String Email, String Senha) async {
-  var response =
-      await http.post(Uri.https('sensor-quali.herokuapp.com', ''), body: {
-    "email_emp": Email,
-    "senha": Senha,
-  });
-
-  var data = response.body;
-  print(data);
-
-  if (response.statusCode == 0) {
-    String responseString = response.body;
-    dataModelFromJson(responseString);
-  } else {
-    throw Exception('Erro inesperado...');
-  }
-}
-
 class _login extends State<login> {
   final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
 
   final TextEditingController _controllerLogEmail = TextEditingController();
   final TextEditingController _controllerLogSenha = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
+  
   @override
   Widget build(BuildContext context) => Scaffold(
         body: SingleChildScrollView(
@@ -199,18 +191,16 @@ class _login extends State<login> {
                                     ),
                                   ),
                                 ),
-                                onPressed: () {
+                                onPressed: () { 
                                   Navigator.push(
-                                    context,
-                                    PageTransition(
-                                      child: const Inicio(),
-                                      type: PageTransitionType.size,
-                                      alignment: Alignment.center,
-                                      duration:
-                                          const Duration(milliseconds: 400),
-                                    ),
-                                  );
-                                },
+                              context,
+                              PageTransition(
+                                child: const Inicio(),
+                                type: PageTransitionType.fade,
+                                duration: const Duration(milliseconds: 400),
+                              ),
+                            );
+                          },
                               ),
                             ),
                           ],
@@ -258,17 +248,13 @@ class _login extends State<login> {
       return;
     }
     _formKey.currentState!.save();
-    Enviar();
+    submitLogin();
   }
 
-  Enviar() async {
-    String Email = _controllerLogEmail.text;
-    String Senha = _controllerLogSenha.text;
-
-    DataModel data = await submitData(Email, Senha);
-
-    setState(() {
-      DataModel _dataModel = data;
+   void submitLogin() async {
+    Response response = await _dio.post("/api/login_Usuario", data: {
+      "email": _controllerLogEmail.text,
+      "senha":_controllerLogSenha.text,
     });
-  }
+   }
 }

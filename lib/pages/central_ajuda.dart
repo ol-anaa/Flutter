@@ -79,17 +79,18 @@ class CentralAjuda extends StatelessWidget {
                         color: Color.fromARGB(255, 110, 107, 107),
                         borderRadius: BorderRadius.all(Radius.circular(20))),
                     child: TextButton(
-                        child: const Center(
-                          child: Text(
-                            'sensordequalidade@gmail.com',
-                            style: TextStyle(
-                              color: Colors.white,
-                              fontSize: 25,
-                              fontFamily: 'Roboto Condensed',
-                            ),
+                      child: const Center(
+                        child: Text(
+                          'yarasensorqualidade@gmail.com',
+                          style: TextStyle(
+                            color: Colors.white,
+                            fontSize: 25,
+                            fontFamily: 'Roboto Condensed',
                           ),
                         ),
-                        onPressed: ()=> abrirGmail()),
+                      ),
+                      onPressed: () => _abrirGmail(),
+                    ),
                   ),
                 ),
                 const Text(
@@ -106,18 +107,18 @@ class CentralAjuda extends StatelessWidget {
           ),
         ),
       );
+}
 
-  abrirGmail() async {
-    final Uri params = Uri(
-      scheme: 'mailto',
-      path: 'oliveiraanabeatrizde510@gmail.com',
-      query: 'subject=Reportar&body=Detalhe aqui qual bug você encontrou: ',
-    );
-    
-    if (await canLaunchUrl(params)) {
-      await launchUrl(params);
-    } else {
-      print('Could not launch $params');
-    }
+void _abrirGmail() async {
+  final Uri params = Uri(
+    scheme: 'mailto',
+    path: 'yarasensorqualidade@gmail.com',
+    query: 'subject=Reportar&body=Detalhe aqui qual bug você encontrou: ',
+  );
+
+  if (await canLaunchUrl(params)) {
+    await launchUrl(params);
+  } else {
+    print('Could not launch $params');
   }
 }

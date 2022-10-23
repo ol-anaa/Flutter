@@ -15,7 +15,7 @@ realmente? Coisas a se pensar se sobrar tempo. */
 class _esqSenha extends State<esqSenha> {
   final _formKey = GlobalKey<FormState>();
 
- final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
 
   @override
   Widget build(BuildContext context) {
@@ -150,10 +150,11 @@ class _esqSenha extends State<esqSenha> {
                       ),
                       onPressed: () => {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    const login()))
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) => const login()
+                          ),
+                        ),
                       },
                     ),
                   ),
@@ -173,5 +174,4 @@ class _esqSenha extends State<esqSenha> {
     }
     _formKey.currentState!.save();
   }
-
 }

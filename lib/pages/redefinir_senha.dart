@@ -34,11 +34,9 @@ class red_senha extends StatelessWidget {
               height: 200,
               child: Image.asset('assets/logoSensor.png'),
             ),
-
             const SizedBox(
               height: 30,
             ),
-
             Column(
               children: const [
                 Center(
@@ -54,7 +52,6 @@ class red_senha extends StatelessWidget {
                 ),
               ],
             ),
-
             Column(
               children: const [
                 Center(
@@ -69,11 +66,9 @@ class red_senha extends StatelessWidget {
                 ),
               ],
             ),
-
             const SizedBox(
               height: 30,
             ),
-
             Container(
               margin: (const EdgeInsets.only(top: 10, left: 25, right: 25)),
               height: 50,
@@ -93,18 +88,18 @@ class red_senha extends StatelessWidget {
                   ),
                 ),
                 onPressed: () {
-                   Navigator.push(
-                      context,
-                      MaterialPageRoute(
-                          builder: (BuildContext context) => const login()));
+                  Navigator.push(
+                    context,
+                    MaterialPageRoute(
+                      builder: (BuildContext context) => const login()
+                    ),
+                  );
                 },
               ),
             ),
-
             const SizedBox(
               height: 20,
             ),
-
             Container(
               height: 40,
               child: TextButton(
@@ -117,8 +112,7 @@ class red_senha extends StatelessWidget {
                   ),
                   textAlign: TextAlign.center,
                 ),
-                onPressed: () => {
-                },
+                onPressed: () => {},
               ),
             ),
           ],

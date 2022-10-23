@@ -1,4 +1,6 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+
 import 'package:tcc/pages/menu.dart';
 
 class Wifi extends StatefulWidget {
@@ -10,9 +12,21 @@ class Wifi extends StatefulWidget {
 
 class _ConfigWiFi extends State<Wifi> {
   final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
 
-   final TextEditingController _controllerWiFi = TextEditingController();
-   final TextEditingController _controllerSenha = TextEditingController();
+  final TextEditingController _controllerWiFi = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
+
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -127,7 +141,8 @@ class _ConfigWiFi extends State<Wifi> {
                         height: 20,
                       ),
                       Container(
-                        margin: (const EdgeInsets.only(top: 10, left: 25, right: 25)),
+                        margin: (const EdgeInsets.only(
+                            top: 10, left: 25, right: 25)),
                         height: 50,
                         width: 200,
                         decoration: const BoxDecoration(
@@ -157,10 +172,19 @@ class _ConfigWiFi extends State<Wifi> {
         ),
       );
 
+    void submitWifi() async {
+    Response response = await _dio.post("/ /", data: {
+      "": _controllerWiFi.text,
+      "": _controllerSenha,
+    });
+   }
+
   void _submit() {
-  final isValid = _formKey.currentState!.validate();
+    final isValid = _formKey.currentState!.validate();
     if (!isValid) {
       return;
     }
+    _formKey.currentState!.save();
+    submitWifi();
   }
 }

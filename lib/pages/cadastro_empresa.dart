@@ -1,9 +1,7 @@
-import 'dart:io';
 import 'package:flutter/material.dart';
+import 'dart:io';
 import 'package:image_picker/image_picker.dart';
-import 'package:http/http.dart' as http;
-
-import 'package:tcc/services/CadastroEmpresa.dart';
+import 'package:dio/dio.dart';
 
 class SouEmpresa extends StatefulWidget {
   const SouEmpresa({Key? key}) : super(key: key);
@@ -14,44 +12,31 @@ class SouEmpresa extends StatefulWidget {
 
 //TODO: Colocar a URL certa e mudar o códiogo de status
 
-Future<dynamic> submitData(String RazaoSocial, String NomeFantasia, String CNPJ, String Email, String Senha, String AtEconomica, String DtFund, String Img) async{
-  var response = await http.post(Uri.https('sensor-quali.herokuapp.com', ''), 
-  body: {
-    "razao_social" : RazaoSocial,
-    "nome_fantasia": NomeFantasia,
-    "CNPJ": CNPJ,
-    "email_emp": Email,
-    "senha": Senha,
-    "Atv_Eco": AtEconomica,
-    "dtFund": DtFund,
-    "imagemReserv": Img,
-  });
-  
-  var data = response.body;
-  print(data);
-
-  if(response.statusCode == 0){
-    String responseString = response.body;
-    dataModelFromJson(responseString);
-  }
-  else {
-    throw Exception('Erro inesperado...');
-  }
-}
-
 class _Empresa extends State<SouEmpresa> {
   XFile? empresa;
   final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
 
-   final TextEditingController _controllerRazao = TextEditingController();
-   final TextEditingController _controllerNomeFan = TextEditingController();
-   final TextEditingController _controllerCNPJ = TextEditingController();
-   final TextEditingController _controllerEmail = TextEditingController();
-   final TextEditingController _controllerSenha = TextEditingController();
-   final TextEditingController _controllerAtvEco = TextEditingController();
-   final TextEditingController _controllerDtFund = TextEditingController();
-   final TextEditingController _controllerImg = TextEditingController();
+  final TextEditingController _controllerRazao = TextEditingController();
+  final TextEditingController _controllerNomeFan = TextEditingController();
+  final TextEditingController _controllerCNPJ = TextEditingController();
+  final TextEditingController _controllerEmail = TextEditingController();
+  final TextEditingController _controllerSenha = TextEditingController();
+  final TextEditingController _controllerAtvEco = TextEditingController();
+  final TextEditingController _controllerDtFund = TextEditingController();
+  final TextEditingController _controllerImg = TextEditingController();
 
+  @override
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -123,7 +108,7 @@ class _Empresa extends State<SouEmpresa> {
                           ),
                         ),
                         style: const TextStyle(fontSize: 20),
-                         validator: (value) {
+                        validator: (value) {
                           if (value!.isEmpty ||
                               !RegExp(r'(^[a-zA-Z ]*$)').hasMatch(value)) {
                             return 'Campo inválido';
@@ -177,7 +162,8 @@ class _Empresa extends State<SouEmpresa> {
                     style: const TextStyle(fontSize: 20),
                     validator: (value) {
                       if (value!.isEmpty ||
-                          !RegExp(r'\d{2}.?\d{3}.?\d{3}/?\d{4}-?\d{2}').hasMatch(value)) {
+                          !RegExp(r'\d{2}.?\d{3}.?\d{3}/?\d{4}-?\d{2}')
+                              .hasMatch(value)) {
                         return 'Campo inválido';
                       }
                       return null;
@@ -212,27 +198,26 @@ class _Empresa extends State<SouEmpresa> {
                     height: 5,
                   ),
                   TextFormField(
-                    controller: _controllerSenha,
-                    keyboardType: TextInputType.text,
-                    obscureText: true,
-                    autofocus: true,
-                    decoration: const InputDecoration(
-                      icon: Icon(Icons.vpn_key, size: 30.0),
-                      labelText: "Senha",
-                      labelStyle: TextStyle(
-                        color: Colors.black38,
-                        fontWeight: FontWeight.w400,
-                        fontSize: 20,
+                      controller: _controllerSenha,
+                      keyboardType: TextInputType.text,
+                      obscureText: true,
+                      autofocus: true,
+                      decoration: const InputDecoration(
+                        icon: Icon(Icons.vpn_key, size: 30.0),
+                        labelText: "Senha",
+                        labelStyle: TextStyle(
+                          color: Colors.black38,
+                          fontWeight: FontWeight.w400,
+                          fontSize: 20,
+                        ),
                       ),
-                    ),
-                    style: const TextStyle(fontSize: 20),
-                    validator: (value) {
-                      if (value!.isEmpty) {
-                        return 'Campo inválido';
-                      }
-                      return null;
-                    }
-                  ),
+                      style: const TextStyle(fontSize: 20),
+                      validator: (value) {
+                        if (value!.isEmpty) {
+                          return 'Campo inválido';
+                        }
+                        return null;
+                      }),
                   const SizedBox(
                     height: 5,
                   ),
@@ -251,12 +236,12 @@ class _Empresa extends State<SouEmpresa> {
                     ),
                     style: const TextStyle(fontSize: 20),
                     validator: (value) {
-                          if (value!.isEmpty ||
-                              !RegExp(r'(^[a-zA-Z ]*$)').hasMatch(value)) {
-                            return 'Campo inválido';
-                          }
-                          return null;
-                        },
+                      if (value!.isEmpty ||
+                          !RegExp(r'(^[a-zA-Z ]*$)').hasMatch(value)) {
+                        return 'Campo inválido';
+                      }
+                      return null;
+                    },
                   ),
                   const SizedBox(
                     height: 5,
@@ -272,12 +257,13 @@ class _Empresa extends State<SouEmpresa> {
                         color: Colors.black38,
                         fontWeight: FontWeight.w400,
                         fontSize: 20,
-                        ),
+                      ),
                     ),
                     style: const TextStyle(fontSize: 20),
                     validator: (value) {
                       if (value!.isEmpty ||
-                          !RegExp(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}').hasMatch(value)) {
+                          !RegExp(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                              .hasMatch(value)) {
                         return 'Campo inválido';
                       }
                       return null;
@@ -344,26 +330,21 @@ class _Empresa extends State<SouEmpresa> {
       return;
     }
     _formKey.currentState!.save();
-    Enviar();
+    submitEmp();
   }
 
-  Enviar() async{
-
-    String RazaoSocial  = _controllerRazao.text;
-    String NomeFantasia = _controllerNomeFan.text;
-    String CNPJ         = _controllerCNPJ.text;
-    String Email        = _controllerEmail.text;
-    String Senha        = _controllerSenha.text;
-    String AtEconomica  = _controllerAtvEco.text;
-    String DtFund       = _controllerDtFund.text;
-    String Img          = _controllerImg.text;
-
-    DataModel data = await submitData(RazaoSocial, NomeFantasia, CNPJ, Email, Senha, AtEconomica, DtFund, Img);
-
-    setState(() {
-      DataModel _dataModel = data;
+  void submitEmp() async {
+    Response response = await _dio.post("/ /", data: {
+      "": _controllerAtvEco.text,
+      "": _controllerCNPJ.text,
+      "": _controllerDtFund.text,
+      "": _controllerEmail.text,
+      "": _controllerImg.text,
+      "": _controllerNomeFan,
+      "": _controllerRazao,
+      "": _controllerSenha,
     });
-  }
+   }
 
   selecionarReserv() async {
     final ImagePicker picker = ImagePicker();

@@ -1,10 +1,9 @@
 import 'package:flutter/material.dart';
-import 'package:http/http.dart' as http;
 import 'package:image_picker/image_picker.dart';
+import 'package:dio/dio.dart';
 import 'dart:io';
 
 import 'package:tcc/pages/menu.dart';
-import 'package:tcc/services/CadastroReserv.dart';
 
 class ReservPage extends StatefulWidget {
   const ReservPage({Key? key}) : super(key: key);
@@ -15,38 +14,29 @@ class ReservPage extends StatefulWidget {
 
 /*TODO: Esperar a finalização da classe "CadastroReserv.dart" para ter todos os campos corretamente 
 descritos aqui, além disso, clocar o caminho correto e mudar o status de erro código. */
-Future<dynamic> submitData(String NomeReserv, String CEP, String Responsavel, String Tipo, String Descricao) async{
-  var response = await http.post(Uri.https('sensor-quali.herokuapp.com', ''), 
-  body: {
-    "" : NomeReserv,
-    "": CEP,
-    "": Responsavel,
-    "": Tipo,
-    "": Descricao,
-
-  });
-
-  var data = response.body;
-  print(data);
-
-  if(response.statusCode == 0){
-    String responseString = response.body;
-    dataModelFromJson(responseString);
-  }
-  else {
-    throw Exception('Erro inesperado...');
-  }
-}
 
 class _NewReserv extends State<ReservPage> {
   XFile? reservatorio;
   final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
 
   final TextEditingController _controllerNome = TextEditingController();
   final TextEditingController _controllerCEP = TextEditingController();
-  final TextEditingController _controllerResponsavel= TextEditingController();
+  final TextEditingController _controllerResponsavel = TextEditingController();
   final TextEditingController _controllerTipo = TextEditingController();
   final TextEditingController _controllerDescricao = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
 
   @override
   Widget build(BuildContext context) => Scaffold(
@@ -285,21 +275,16 @@ class _NewReserv extends State<ReservPage> {
       return;
     }
     _formKey.currentState!.save();
-    Enviar();
+    submitReserv();
   }
 
-  Enviar() async{
-    String NomeReserv  = _controllerNome.text;
-    String CEP         = _controllerCEP.text;
-    String Responsavel = _controllerResponsavel.text;
-    String Tipo        = _controllerTipo.text;
-    String Descricao   = _controllerDescricao.text;
-   
-
-    DataModel data = await submitData(NomeReserv, CEP, Responsavel, Tipo, Descricao);
-   
-    setState(() {
-      DataModel _dataModel = data;
+  void submitReserv() async {
+    Response response = await _dio.post("/ /", data: {
+      "": _controllerNome.text,
+      "": _controllerCEP.text,
+      "": _controllerDescricao,
+      "": _controllerResponsavel,
+      "": _controllerTipo,
     });
   }
 

@@ -2,6 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:tcc/pages/Inicio.dart';
 
 class SouEmpresa extends StatefulWidget {
   const SouEmpresa({Key? key}) : super(key: key);
@@ -148,7 +149,7 @@ class _Empresa extends State<SouEmpresa> {
                   ),
                   TextFormField(
                     controller: _controllerCNPJ,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.datetime,
                     autofocus: true,
                     decoration: const InputDecoration(
                       icon: Icon(Icons.wallet_rounded, size: 30.0),
@@ -248,7 +249,7 @@ class _Empresa extends State<SouEmpresa> {
                   ),
                   TextFormField(
                     controller: _controllerDtFund,
-                    keyboardType: TextInputType.number,
+                    keyboardType: TextInputType.datetime,
                     autofocus: true,
                     decoration: const InputDecoration(
                       icon: Icon(Icons.cake_sharp, size: 30.0),
@@ -262,7 +263,7 @@ class _Empresa extends State<SouEmpresa> {
                     style: const TextStyle(fontSize: 20),
                     validator: (value) {
                       if (value!.isEmpty ||
-                          !RegExp(r'^[0-9]{4}-[0-9]{2}-[0-9]{2}')
+                          !RegExp(r"^[0-9]{2}/[0-9]{2}/[0-9]{4}")
                               .hasMatch(value)) {
                         return 'Campo inválido';
                       }
@@ -334,17 +335,33 @@ class _Empresa extends State<SouEmpresa> {
   }
 
   void submitEmp() async {
-    Response response = await _dio.post("/ /", data: {
-      "": _controllerAtvEco.text,
-      "": _controllerCNPJ.text,
-      "": _controllerDtFund.text,
-      "": _controllerEmail.text,
-      "": _controllerImg.text,
-      "": _controllerNomeFan,
-      "": _controllerRazao,
-      "": _controllerSenha,
-    });
-   }
+    try {
+      Response response = await _dio.post("/api/cadastro_empresas", data: {
+        "atv_eco": _controllerAtvEco.text,
+        "cnpj": _controllerCNPJ.text,
+        "dtfund": _controllerDtFund.text,
+        "email_emp": _controllerEmail.text,
+        "imagem_emp": _controllerImg.text,
+        "nome_fantasia": _controllerNomeFan.text,
+        "razao_social": _controllerRazao.text,
+        "senha": _controllerSenha.text,
+      });
+
+      if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => Inicio(),
+          ),
+        );
+      }
+    } catch (e) {
+      const snackBar = SnackBar(
+        content: Text('Empresa já cadastrada.'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 
   selecionarReserv() async {
     final ImagePicker picker = ImagePicker();

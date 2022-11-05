@@ -4,7 +4,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 
 import 'package:tcc/pages/cadastro_empresa.dart';
-import 'package:tcc/pages/login.dart';
+import 'package:tcc/pages/Inicio.dart';
 
 class SouPessoa extends StatefulWidget {
   const SouPessoa({Key? key}) : super(key: key);
@@ -346,28 +346,30 @@ class _Pessoa extends State<SouPessoa> {
   }
 
   void submitUser() async {
-    Response response = await _dio.post("/api/cadastro_Usuario", data: {
-      "cpf": _controllerCpf.text,
-      "email": _controllerEmail.text,
-      "nome": _controllerNome.text,
-      "sobrenome": _controllerSobrenome.text,
-      "senha": _controllerSenha.text,
-      "dtnasci": _controllerDtNasc.text
-    });
-
-    if (response.statusCode == 201) {
+    try {
+      Response response = await _dio.post("/api/cadastro_usuarios", data: {
+        "cpf": _controllerCpf.text,
+        "email": _controllerEmail.text,
+        "nome": _controllerNome.text,
+        "sobrenome": _controllerSobrenome.text,
+        "senha": _controllerSenha.text,
+        "dtnasci": _controllerDtNasc.text
+      });
+      
+      if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => Inicio(),
+          ),
+        );
+      } 
+    } catch (e) {
       const snackBar = SnackBar(
-        content: Text('Usuário cadastrado com sucesso!'),
+        content: Text('Usuário já cadastrado.'),
       );
       ScaffoldMessenger.of(context).showSnackBar(snackBar);
-      Navigator.push(
-        context,
-        MaterialPageRoute(
-          builder: (BuildContext context) => const login(),
-        ),
-      );
-    } else {
-      throw Exception('Erro inesperado...');
+
     }
   }
 

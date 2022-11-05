@@ -31,7 +31,7 @@ class _login extends State<login> {
 
     _dio = new Dio(options);
   }
-  
+
   @override
   Widget build(BuildContext context) => Scaffold(
         body: SingleChildScrollView(
@@ -191,16 +191,7 @@ class _login extends State<login> {
                                     ),
                                   ),
                                 ),
-                                onPressed: () { 
-                                  Navigator.push(
-                              context,
-                              PageTransition(
-                                child: const Inicio(),
-                                type: PageTransitionType.fade,
-                                duration: const Duration(milliseconds: 400),
-                              ),
-                            );
-                          },
+                                onPressed: () => _submit(),
                               ),
                             ),
                           ],
@@ -251,10 +242,27 @@ class _login extends State<login> {
     submitLogin();
   }
 
-   void submitLogin() async {
-    Response response = await _dio.post("/api/login_Usuario", data: {
-      "email": _controllerLogEmail.text,
-      "senha":_controllerLogSenha.text,
-    });
-   }
+  void submitLogin() async {
+    try {
+      Response response = await _dio.post("/api/login_usuarios", data: {
+        "email": _controllerLogEmail.text,
+        "senha": _controllerLogSenha.text,
+      });
+
+      if (response.statusCode == 200) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => Inicio(),
+          ),
+        );
+      } 
+
+    } catch (e) {
+      const snackBar = SnackBar(
+        content: Text('Email ou senha incorreta.'),
+      );
+      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }
+  }
 }

@@ -1,5 +1,6 @@
 import 'dart:io';
 import 'package:flutter/material.dart';
+import 'package:http_status_code/http_status_code.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 
@@ -17,6 +18,7 @@ class _Pessoa extends State<SouPessoa> {
   XFile? pessoa;
   final _formKey = GlobalKey<FormState>();
   late Dio _dio;
+  String mensagemError = "";
 
   final TextEditingController _controllerNome = TextEditingController();
   final TextEditingController _controllerSobrenome = TextEditingController();
@@ -186,6 +188,7 @@ class _Pessoa extends State<SouPessoa> {
                   TextFormField(
                     controller: _controllerEmail,
                     autofocus: true,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       icon: Icon(Icons.email_rounded, size: 30.0),
                       labelText: "Email",
@@ -210,7 +213,7 @@ class _Pessoa extends State<SouPessoa> {
                   ),
                   TextFormField(
                     controller: _controllerSenha,
-                    keyboardType: TextInputType.text,
+                    keyboardType: TextInputType.visiblePassword,
                     obscureText: true,
                     autofocus: true,
                     decoration: const InputDecoration(
@@ -319,10 +322,12 @@ class _Pessoa extends State<SouPessoa> {
                       ),
                       onPressed: () => {
                         Navigator.push(
-                            context,
-                            MaterialPageRoute(
-                                builder: (BuildContext context) =>
-                                    const SouEmpresa()))
+                          context,
+                          MaterialPageRoute(
+                            builder: (BuildContext context) =>
+                                const SouEmpresa(),
+                          ),
+                        ),
                       },
                     ),
                   ),
@@ -335,9 +340,8 @@ class _Pessoa extends State<SouPessoa> {
     );
   }
 
-  Future<void> _submit() async {
+  void _submit() {
     final isValid = _formKey.currentState!.validate();
-
     if (!isValid) {
       return;
     }
@@ -347,7 +351,7 @@ class _Pessoa extends State<SouPessoa> {
 
   void submitUser() async {
     try {
-      Response response = await _dio.post("/api/cadastro_usuarios", data: {
+      Response response = await _dio.post("/cadastro/usuarios", data: {
         "cpf": _controllerCpf.text,
         "email": _controllerEmail.text,
         "nome": _controllerNome.text,
@@ -355,7 +359,7 @@ class _Pessoa extends State<SouPessoa> {
         "senha": _controllerSenha.text,
         "dtnasci": _controllerDtNasc.text
       });
-      
+
       if (response.statusCode == 201) {
         Navigator.push(
           context,
@@ -363,13 +367,14 @@ class _Pessoa extends State<SouPessoa> {
             builder: (BuildContext context) => Inicio(),
           ),
         );
-      } 
-    } catch (e) {
-      const snackBar = SnackBar(
-        content: Text('Usuário já cadastrado.'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
-
+      }
+    } on DioError catch (e) {
+      if (e.response != null) {
+        mensagemError = e.response?.data["mensagem"] ?? "";
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(mensagemError),
+      ));
+      }
     }
   }
 

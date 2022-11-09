@@ -17,6 +17,7 @@ class _Empresa extends State<SouEmpresa> {
   XFile? empresa;
   final _formKey = GlobalKey<FormState>();
   late Dio _dio;
+  String mensagemError = "";
 
   final TextEditingController _controllerRazao = TextEditingController();
   final TextEditingController _controllerNomeFan = TextEditingController();
@@ -176,6 +177,7 @@ class _Empresa extends State<SouEmpresa> {
                   TextFormField(
                     controller: _controllerEmail,
                     autofocus: true,
+                    keyboardType: TextInputType.emailAddress,
                     decoration: const InputDecoration(
                       icon: Icon(Icons.email_rounded, size: 30.0),
                       labelText: "Email",
@@ -200,7 +202,7 @@ class _Empresa extends State<SouEmpresa> {
                   ),
                   TextFormField(
                       controller: _controllerSenha,
-                      keyboardType: TextInputType.text,
+                      keyboardType: TextInputType.visiblePassword,
                       obscureText: true,
                       autofocus: true,
                       decoration: const InputDecoration(
@@ -332,6 +334,11 @@ class _Empresa extends State<SouEmpresa> {
     }
     _formKey.currentState!.save();
     submitEmp();
+    if(mensagemError.isNotEmpty){
+      ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(mensagemError),
+      ));
+    }
   }
 
   void submitEmp() async {
@@ -355,11 +362,10 @@ class _Empresa extends State<SouEmpresa> {
           ),
         );
       }
-    } catch (e) {
-      const snackBar = SnackBar(
-        content: Text('Empresa já cadastrada.'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    }on DioError catch (e) {
+      if (e.response != null) {
+        mensagemError = e.response?.data["mensagem"] ?? "";
+      }
     }
   }
 

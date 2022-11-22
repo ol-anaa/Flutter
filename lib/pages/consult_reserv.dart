@@ -3,18 +3,20 @@ import 'package:http/http.dart' as http;
 import 'package:flutter/rendering.dart';
 import 'dart:async';
 import 'dart:convert';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tcc/pages/menu.dart';
 import 'package:tcc/services/Reserv.dart';
 import 'package:tcc/pages/novo_reserv.dart';
 
-const String URL = "https://sensor-quali.herokuapp.com/reservatorio";
-
 //NOTE:Ainda não trago os dados de acordo com o usuário, eu trago todos os reservatório, precisamos ver isso.
 
 Future<List<Reserv>> fetchData() async {
+  final prefs = await SharedPreferences.getInstance();
+  final id = prefs.getInt('key') ?? 0;
+ 
   var response =
-      await http.get(Uri.parse(URL), headers: {"Accept": "application/json"});
+      await http.get(Uri.parse("https://sensor-quali.herokuapp.com/reservuser/${id}"), headers: {"Accept": "application/json"});
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => Reserv.fromJson(data)).toList();
@@ -93,15 +95,15 @@ class _reserv extends State<consult_reserv> with TickerProviderStateMixin {
                 return true;
               },
               child: ListView.separated(
-                itemCount: 2,
+                itemCount: 1,
                 itemBuilder: (BuildContext context, int index) {
                   final Reserv reservatorio = snap.data![index];
                   return ListTile(
                     leading: const CircleAvatar(
                         // backgroundImage: NetworkImage(reservatorio.imgReserv),
                         ),
-                    title: Text('Local: ${reservatorio.localReserv}'),
-                    subtitle: Text('Descrição: ${reservatorio.descricao}'),
+                    title: Text('Local: ${reservatorio.local}'),
+                    subtitle: Text('Descrição: ${reservatorio.Descricao}'),
                   );
                 },
                 separatorBuilder: (__, _) => const Divider(),

@@ -2,12 +2,44 @@ import 'package:flutter/material.dart';
 import 'package:url_launcher/url_launcher.dart';
 
 import 'package:tcc/pages/login.dart';
-import 'package:tcc/pages/atiliza_perfil.dart';
+import 'package:tcc/pages/atualiza_perfil.dart';
 import 'package:tcc/pages/consult_reserv.dart';
 import 'package:tcc/pages/central_ajuda.dart';
 import 'package:tcc/pages/user_page.dart';
 import 'package:tcc/pages/config_wi-fi.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:http/http.dart' as http;
+import 'dart:convert';
+import 'package:flutter/services.dart' show rootBundle;
 
+import 'package:tcc/services/users.dart';
+
+Future<List<User>> fetchData() async {
+  final prefs = await SharedPreferences.getInstance();
+  final id = prefs.getInt('key') ?? 0;
+
+  var response = await http.get(
+      Uri.parse("https://sensor-quali.herokuapp.com/Usuario/${id}"),
+      headers: {"Accept": "application/json"});
+  if (response.statusCode == 200) {
+    List jsonResponse = json.decode(response.body);
+    return jsonResponse.map((data) => User.fromJson(data)).toList();
+  } else {
+    throw Exception('Erro inesperado...');
+  }
+}
+
+Future<String> _usuario() async {
+  return await rootBundle.loadString('Json/usuario.json');
+}
+Future carregaAluno() async {
+  String jsonString = await _usuario();
+  final jsonResponse = json.decode(jsonString);
+
+  User user = new User.fromJson(jsonResponse);
+
+  print(user.nome);
+}
 
 class MenuPrincipal extends StatelessWidget {
 
@@ -16,10 +48,10 @@ class MenuPrincipal extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    const name = 'AnaBia'; //Trazer nome do banco
+    const name =  '';//Trazer nome do banco
     const BemVindo = 'Seja bem-vindo(a)!';
     const urlImage = 'https://cdn.maioresemelhores.com/imagens/mm-gatos-1-cke.jpg'; //Trazer banco
-    
+
     return Drawer(
       child: Material(
         color: const Color.fromARGB(172, 15, 76, 190),

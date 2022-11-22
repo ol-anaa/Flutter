@@ -1,29 +1,33 @@
 class User {
-  String nome;
-  String sobrenome;
-  String img;
+  int id;
   String cpf;
   String email;
+  String nome;
+  String sobrenome;
+  String senha;
   String dataNasc;
+  String img;
 
-  User(this.nome, this.sobrenome, this.img, this.cpf, this.email, this.dataNasc);
+  User(this.id,this.cpf, this.email, this.nome, this.sobrenome, this.senha, this.dataNasc, this.img);
 
-Map toJson() => {'nome': nome, 'sobrenome': sobrenome, 'imagemreserv': img, 'cpf': cpf, 'id_email': email, 'dtnasci': dataNasc};
+Map toJson() => {'id_usuario': id, 'cpf': cpf, 'email': email, 'nome': nome, 'sobrenome': sobrenome, 'senha': senha, 'dtnasci': dataNasc, 'imagem_user': img};
 
 factory User.fromJson(dynamic json){
-
+  
+  if (json ['id'] == null) json ['id'] = 0;
+  if (json ['cpf'] == null) json ['cpf'] = '';
+  if (json ['email'] == null) json ['email'] = '';
   if (json ['nome'] == null) json ['nome'] = '';
   if (json ['sobrenome'] == null) json ['sobrenome'] = '';
-  if (json ['imagemreserv'] == null) json ['imagemreserv'] = '';
-  if (json ['cpf'] == null) json ['cpf'] = '';
-  if (json ['id_email'] == null) json ['id_email'] = '';
+  if (json ['senha'] == null) json ['senha'] = '';
   if (json ['dtnasci'] == null) json ['dtnasci'] = '';
-  return User(json['nome'], json['sobrenome'], json['imagemreserv'], json['cpf'], json['id_email'], json['dtnasci']);
+  if (json ['imagem_user'] == null) json ['imagem_user'] = '';
+  return User(json['id'],json['cpf'], json['email'],json['nome'], json['sobrenome'],json['senha'],json['dtnasci'],json['imagem_user']);
 
 }
 
   @override 
   String toString(){
-    return '{${this.nome},${this.sobrenome},${this.img}${this.cpf},${this.email},${this.dataNasc}}';
+    return '{$this.id,$this.cpf,$this.email,$this.nome,$this.sobrenome,$this.senha,$this.dataNasc,$this.img}';
   }
 }

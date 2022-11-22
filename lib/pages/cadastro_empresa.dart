@@ -343,7 +343,7 @@ class _Empresa extends State<SouEmpresa> {
 
   void submitEmp() async {
     try {
-      Response response = await _dio.post("/api/cadastro_empresas", data: {
+      Response response = await _dio.post("/Empresa/Cadastro", data: {
         "atv_eco": _controllerAtvEco.text,
         "cnpj": _controllerCNPJ.text,
         "dtfund": _controllerDtFund.text,

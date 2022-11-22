@@ -351,7 +351,7 @@ class _Pessoa extends State<SouPessoa> {
 
   void submitUser() async {
     try {
-      Response response = await _dio.post("/cadastro/usuarios", data: {
+      Response response = await _dio.post("/Usuario/Cadastro", data: {
         "cpf": _controllerCpf.text,
         "email": _controllerEmail.text,
         "nome": _controllerNome.text,

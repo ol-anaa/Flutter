@@ -42,7 +42,9 @@ dependencies:
   response: ^1.0.0
   lottie: ^1.4.3
   dio: ^4.0.6
+  http: ^0.13.5
   http_status_code: ^0.0.2
+  shared_preferences: ^2.0.15
   flutter_native_splash: ^2.2.11
   flutter_launcher_icons: ^0.10.0
   page_transition: "^2.0.9"

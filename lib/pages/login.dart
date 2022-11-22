@@ -1,11 +1,11 @@
 import 'package:flutter/material.dart';
 import 'package:page_transition/page_transition.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tcc/pages/esqueceu_senha.dart';
 import 'package:tcc/pages/cadastro_pessoa.dart';
 import 'package:tcc/pages/Inicio.dart';
-
 class login extends StatefulWidget {
   const login({Key? key}) : super(key: key);
 
@@ -16,6 +16,7 @@ class login extends StatefulWidget {
 class _login extends State<login> {
   final _formKey = GlobalKey<FormState>();
   late Dio _dio;
+  String mensagemError = "";
 
   final TextEditingController _controllerLogEmail = TextEditingController();
   final TextEditingController _controllerLogSenha = TextEditingController();
@@ -244,10 +245,13 @@ class _login extends State<login> {
 
   void submitLogin() async {
     try {
-      Response response = await _dio.post("/api/login_usuarios", data: {
-        "email": _controllerLogEmail.text,
-        "senha": _controllerLogSenha.text,
-      });
+      Response response = await _dio.get("/Usuario/${_controllerLogEmail.text}/${_controllerLogSenha.text}");
+      Map res = response?.data;
+      Map map = res["tokenUser"];
+      int id = map["id_usuario"];
+
+      final prefs = await SharedPreferences.getInstance();
+        await prefs.setInt('key', id);
 
       if (response.statusCode == 200) {
         Navigator.push(
@@ -257,12 +261,14 @@ class _login extends State<login> {
           ),
         );
       } 
-
-    } catch (e) {
-      const snackBar = SnackBar(
-        content: Text('Email ou senha incorreta.'),
-      );
-      ScaffoldMessenger.of(context).showSnackBar(snackBar);
+    } 
+    on DioError catch (e) {
+      if (e.response != null) {
+        mensagemError = e.response?.data["mensagem"] ?? "";
+        ScaffoldMessenger.of(context).showSnackBar(SnackBar(
+        content: Text(mensagemError),
+      ));
+      }
     }
   }
 }

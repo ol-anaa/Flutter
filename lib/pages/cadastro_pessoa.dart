@@ -5,7 +5,7 @@ import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
 
 import 'package:tcc/pages/cadastro_empresa.dart';
-import 'package:tcc/pages/Inicio.dart';
+import 'package:tcc/pages/login.dart';
 
 class SouPessoa extends StatefulWidget {
   const SouPessoa({Key? key}) : super(key: key);
@@ -364,7 +364,7 @@ class _Pessoa extends State<SouPessoa> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) => Inicio(),
+            builder: (BuildContext context) => login(),
           ),
         );
       }

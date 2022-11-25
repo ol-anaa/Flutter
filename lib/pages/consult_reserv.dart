@@ -9,14 +9,12 @@ import 'package:tcc/pages/menu.dart';
 import 'package:tcc/services/Reserv.dart';
 import 'package:tcc/pages/novo_reserv.dart';
 
-//NOTE:Ainda não trago os dados de acordo com o usuário, eu trago todos os reservatório, precisamos ver isso.
-
 Future<List<Reserv>> fetchData() async {
   final prefs = await SharedPreferences.getInstance();
   final id = prefs.getInt('key') ?? 0;
  
   var response =
-      await http.get(Uri.parse("https://sensor-quali.herokuapp.com/reservuser/${id}"), headers: {"Accept": "application/json"});
+      await http.get(Uri.parse("https://sensor-quali.herokuapp.com/Reservatorio_User/${id}"), headers: {"Accept": "application/json"});
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => Reserv.fromJson(data)).toList();

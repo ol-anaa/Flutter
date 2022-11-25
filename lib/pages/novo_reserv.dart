@@ -1,6 +1,8 @@
 import 'package:flutter/material.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+import 'package:tcc/pages/consult_reserv.dart';
 import 'dart:io';
 
 import 'package:tcc/pages/menu.dart';
@@ -12,9 +14,6 @@ class ReservPage extends StatefulWidget {
   State<ReservPage> createState() => _NewReserv();
 }
 
-/*TODO: Esperar a finalização da classe "CadastroReserv.dart" para ter todos os campos corretamente 
-descritos aqui, além disso, clocar o caminho correto e mudar o status de erro código. */
-
 class _NewReserv extends State<ReservPage> {
   XFile? reservatorio;
   final _formKey = GlobalKey<FormState>();
@@ -22,7 +21,7 @@ class _NewReserv extends State<ReservPage> {
 
   final TextEditingController _controllerNome = TextEditingController();
   final TextEditingController _controllerCEP = TextEditingController();
-  final TextEditingController _controllerResponsavel = TextEditingController();
+  final TextEditingController _controllerLocal = TextEditingController();
   final TextEditingController _controllerTipo = TextEditingController();
   final TextEditingController _controllerDescricao = TextEditingController();
 
@@ -145,11 +144,11 @@ class _NewReserv extends State<ReservPage> {
                         height: 5,
                       ),
                       TextFormField(
-                        controller: _controllerResponsavel,
+                        controller: _controllerLocal,
                         autofocus: true,
                         decoration: const InputDecoration(
-                          icon: Icon(Icons.account_circle, size: 30.0),
-                          labelText: "Responsável",
+                          icon: Icon(Icons.location_pin, size: 30.0),
+                          labelText: "Local",
                           labelStyle: TextStyle(
                             color: Colors.black38,
                             fontWeight: FontWeight.w400,
@@ -279,13 +278,27 @@ class _NewReserv extends State<ReservPage> {
   }
 
   void submitReserv() async {
-    Response response = await _dio.post("/ /", data: {
-      "": _controllerNome.text,
-      "": _controllerCEP.text,
-      "": _controllerDescricao,
-      "": _controllerResponsavel,
-      "": _controllerTipo,
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getInt('key') ?? 0;
+
+    Response response = await _dio.post("/Reservatorio_User/Incluir", data: {
+      "id_usuario": id,
+      "nome_reserv": _controllerNome.text,
+      "cep": _controllerCEP.text,
+      "descricao": _controllerDescricao.text,
+      "local_reserv": _controllerLocal.text,
+      "tipo": _controllerTipo.text,
+      "data_ultlimp": "24/11/2022",
+      "data_proxlimp": "24/11/2022"
     });
+    if (response.statusCode == 201) {
+        Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => consult_reserv(),
+          ),
+        );
+      }
   }
 
   novoReserv() async {

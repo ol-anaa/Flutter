@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
 import 'package:tcc/pages/menu.dart';
 
+import 'package:syncfusion_flutter_charts/charts.dart';
+import 'package:intl/intl.dart';
+
 class Inicio extends StatelessWidget {
   const Inicio({super.key});
 
@@ -25,21 +28,62 @@ class Inicio extends StatelessWidget {
             ),
           ),
         ),
-        body: Column(
-          children: const [
-            Center(
-              heightFactor: 10,
-              child: Text(
-                'Página Principal. \n Aqui vai ficar os gráficos e afins..',
-                textDirection: TextDirection.ltr,
-                style: TextStyle(
-                  fontSize: 20,
-                  color: Color.fromARGB(255, 110, 107, 107),
-                  fontFamily: 'Roboto Condensed',
-                ),
+        body: Container(
+          padding: const EdgeInsets.only(
+            top: 25,
+            left: 10,
+            right: 10,
+            bottom: 350,
+          ),
+          child: SfCartesianChart(
+            title: ChartTitle(
+              text: 'Dados do seu reservatório',
+              textStyle: TextStyle(
+                fontSize: 25,
+                color: Color.fromARGB(255, 110, 107, 107),
+                fontFamily: 'Staatliches',
               ),
+              alignment: ChartAlignment.center,
             ),
-          ],
+            // Enable legend
+            legend: Legend(isVisible: true),
+            // Enable tooltip
+            tooltipBehavior: TooltipBehavior(enable: true),
+            series: <ChartSeries<_Dados, String>>[
+              LineSeries<_Dados, String>(
+                  name: 'Turbidez',
+                  dataSource: <_Dados>[
+                    _Dados('Jan', 1.0),
+                    _Dados('Feb', 4.20),
+                    _Dados('Mar', 3.00),
+                    _Dados('Apr', 7.50),
+                    _Dados('May', 4.20),
+                    _Dados('Jun', 2.50),
+                    _Dados('Jul', 2.20),
+                    _Dados('Ago', 6.00),
+                    _Dados('Set', 7.00),
+                    _Dados('Out', 1.50),
+                    _Dados('Nov', 4.20)
+                  ],
+                  xValueMapper: (_Dados agua, _) => agua.tempo,
+                  yValueMapper: (_Dados agua, _) => agua.agua,
+                  // Enable data label
+                  dataLabelSettings: DataLabelSettings(isVisible: true))
+            ],
+            primaryXAxis: CategoryAxis(
+              edgeLabelPlacement: EdgeLabelPlacement.shift,
+            ),
+            primaryYAxis: NumericAxis(
+              labelFormat: '{value} uT',
+            ),
+          ),
         ),
       );
+}
+
+class _Dados {
+  _Dados(this.tempo, this.agua);
+
+  final String tempo;
+  final double agua;
 }

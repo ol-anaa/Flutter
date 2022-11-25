@@ -2,7 +2,7 @@ import 'package:flutter/material.dart';
 import 'dart:io';
 import 'package:image_picker/image_picker.dart';
 import 'package:dio/dio.dart';
-import 'package:tcc/pages/Inicio.dart';
+import 'package:tcc/pages/login.dart';
 
 class SouEmpresa extends StatefulWidget {
   const SouEmpresa({Key? key}) : super(key: key);
@@ -10,8 +10,6 @@ class SouEmpresa extends StatefulWidget {
   @override
   State<SouEmpresa> createState() => _Empresa();
 }
-
-//TODO: Colocar a URL certa e mudar o códiogo de status
 
 class _Empresa extends State<SouEmpresa> {
   XFile? empresa;
@@ -358,7 +356,7 @@ class _Empresa extends State<SouEmpresa> {
         Navigator.push(
           context,
           MaterialPageRoute(
-            builder: (BuildContext context) => Inicio(),
+            builder: (BuildContext context) => login(),
           ),
         );
       }

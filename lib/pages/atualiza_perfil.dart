@@ -1,9 +1,11 @@
 import 'package:flutter/material.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 import 'package:image_picker/image_picker.dart';
 import 'package:http/http.dart' as http;
-import 'package:shared_preferences/shared_preferences.dart';
+import 'package:dio/dio.dart';
 import 'dart:convert';
 import 'dart:io';
+
 
 import 'package:tcc/pages/menu.dart';
 import 'package:tcc/services/users.dart';
@@ -33,11 +35,24 @@ class PerfilPage extends StatefulWidget {
 class _PessoaAt extends State<PerfilPage> {
   late Future<List<User>> futureData;
   XFile? pessoaAt;
+  late Dio _dio;
+
+  TextEditingController _controllerNome = TextEditingController();
+  TextEditingController _controllerSobrenome = TextEditingController();
+  TextEditingController _controllerDtNasc = TextEditingController();
+  TextEditingController _controllerImg = TextEditingController();
 
   @override
   void initState() {
     super.initState();
     futureData = fetchData();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
   }
 
   @override
@@ -102,16 +117,20 @@ class _PessoaAt extends State<PerfilPage> {
                           shrinkWrap: true,
                           itemCount: data.length,
                           itemBuilder: (BuildContext context, int index) {
+                            _controllerNome = TextEditingController(text: data[index].nome);
+                            _controllerSobrenome = TextEditingController(text:data[index].sobrenome);
+                            _controllerDtNasc = TextEditingController(text: data[index].dataNasc);
                             return Column(
                               children: <Widget>[
                                 Row(
                                   children: [
                                     Expanded(
                                       child: TextFormField(
-                                        initialValue: data[index].nome,
+                                        controller: _controllerNome,
                                         autofocus: true,
                                         decoration: const InputDecoration(
-                                          icon: Icon(Icons.account_circle, size: 30.0),
+                                          icon: Icon(Icons.account_circle,
+                                              size: 30.0),
                                           labelText: "Nome",
                                           labelStyle: TextStyle(
                                             color: Colors.black38,
@@ -127,7 +146,7 @@ class _PessoaAt extends State<PerfilPage> {
                                     ),
                                     Expanded(
                                       child: TextFormField(
-                                        initialValue: data[index].sobrenome,
+                                        controller: _controllerSobrenome,
                                         autofocus: true,
                                         decoration: const InputDecoration(
                                           labelText: "Sobrenome",
@@ -146,7 +165,8 @@ class _PessoaAt extends State<PerfilPage> {
                                   height: 15,
                                 ),
                                 TextFormField(
-                                  initialValue: data[index].dataNasc,
+                                  keyboardType: TextInputType.datetime,
+                                  controller: _controllerDtNasc,
                                   autofocus: true,
                                   decoration: const InputDecoration(
                                     icon: Icon(Icons.cake_sharp, size: 30.0),
@@ -159,14 +179,13 @@ class _PessoaAt extends State<PerfilPage> {
                                   ),
                                   style: const TextStyle(fontSize: 20),
                                 ),
-                                SizedBox(
-                                  height: 20
-                                ),
+                                SizedBox(height: 20),
                                 Container(
                                   margin:
                                       (EdgeInsets.only(left: 35, right: 35)),
                                   child: ListTile(
-                                    leading: const Icon(Icons.attach_file, size: 30.0),
+                                    leading: const Icon(Icons.attach_file,
+                                        size: 30.0),
                                     title: const Text(
                                       "Selecione uma imagem",
                                       style: TextStyle(
@@ -203,7 +222,7 @@ class _PessoaAt extends State<PerfilPage> {
                                         ),
                                       ),
                                     ),
-                                    onPressed: () {},
+                                    onPressed: () => AtualizaUser(),
                                   ),
                                 ),
                               ],
@@ -223,8 +242,19 @@ class _PessoaAt extends State<PerfilPage> {
         ),
       );
 
+  void AtualizaUser() async {
+  final prefs = await SharedPreferences.getInstance();
+  final id = prefs.getInt('key') ?? 0;
+    
+    Response response = await _dio.put("/Usuario/Atualizar/${id}", data: {
+      "nome": _controllerNome.text,
+      "sobrenome": _controllerSobrenome.text,
+      "dtnasci": _controllerDtNasc.text
+    });
+  }
+
   AtualizaPer() async {
-    final ImagePicker picker = ImagePicker();
+    ImagePicker picker = ImagePicker();
     try {
       XFile? file = await picker.pickImage(source: ImageSource.gallery);
       if (file != null) setState(() => pessoaAt = file);

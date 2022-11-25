@@ -249,9 +249,12 @@ class _login extends State<login> {
       Map res = response?.data;
       Map map = res["tokenUser"];
       int id = map["id_usuario"];
+      String name = map["nome"];
 
       final prefs = await SharedPreferences.getInstance();
         await prefs.setInt('key', id);
+        await prefs.setString('StringName', name);
+
 
       if (response.statusCode == 200) {
         Navigator.push(

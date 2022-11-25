@@ -8,47 +8,35 @@ import 'package:tcc/pages/central_ajuda.dart';
 import 'package:tcc/pages/user_page.dart';
 import 'package:tcc/pages/config_wi-fi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-import 'package:http/http.dart' as http;
-import 'dart:convert';
-import 'package:flutter/services.dart' show rootBundle;
 
-import 'package:tcc/services/users.dart';
 
-Future<List<User>> fetchData() async {
-  final prefs = await SharedPreferences.getInstance();
-  final id = prefs.getInt('key') ?? 0;
+class MenuPrincipal extends StatefulWidget {
+  const MenuPrincipal({Key? key}) : super(key: key);
 
-  var response = await http.get(
-      Uri.parse("https://sensor-quali.herokuapp.com/Usuario/${id}"),
-      headers: {"Accept": "application/json"});
-  if (response.statusCode == 200) {
-    List jsonResponse = json.decode(response.body);
-    return jsonResponse.map((data) => User.fromJson(data)).toList();
-  } else {
-    throw Exception('Erro inesperado...');
-  }
+  @override
+  State<MenuPrincipal> createState() => _MenuPrincipal();
 }
 
-Future<String> _usuario() async {
-  return await rootBundle.loadString('Json/usuario.json');
-}
-Future carregaAluno() async {
-  String jsonString = await _usuario();
-  final jsonResponse = json.decode(jsonString);
 
-  User user = new User.fromJson(jsonResponse);
-
-  print(user.nome);
-}
-
-class MenuPrincipal extends StatelessWidget {
-
+class _MenuPrincipal extends State<MenuPrincipal> {
   final padding = const EdgeInsets.symmetric(horizontal: 20);
   final Uri _url = Uri.parse('https://ol-anaa.github.io/tcc_pagesWeb/');
 
-  @override
+  String? nome;
+
+  void initPreferences() async {
+    final prefs = await SharedPreferences.getInstance();
+    nome = prefs.getString('StringName') ?? '';
+  }
+
+   @override
+  void initState() {
+    super.initState();
+    initPreferences();
+  }
+
   Widget build(BuildContext context) {
-    const name =  '';//Trazer nome do banco
+    String  name = nome ?? '';
     const BemVindo = 'Seja bem-vindo(a)!';
     const urlImage = 'https://cdn.maioresemelhores.com/imagens/mm-gatos-1-cke.jpg'; //Trazer banco
 
@@ -62,7 +50,7 @@ class MenuPrincipal extends StatelessWidget {
               name: name,
               texto: BemVindo,
               onCliked: () => Navigator.of(context).push(MaterialPageRoute(
-                builder: (context) => const UserPage(
+                builder: (context) => UserPage(
                   name: name,
                   urlImage: urlImage,
                 ),

@@ -252,8 +252,8 @@ class _login extends State<login> {
       String name = map["nome"];
 
       final prefs = await SharedPreferences.getInstance();
-        await prefs.setInt('key', id);
-        await prefs.setString('StringName', name);
+      await prefs.setInt('key', id);
+      await prefs.setString('StringName', name);
 
 
       if (response.statusCode == 200) {

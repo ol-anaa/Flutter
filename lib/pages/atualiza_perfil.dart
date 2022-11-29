@@ -13,7 +13,6 @@ import 'package:tcc/services/users.dart';
 Future<List<User>> fetchData() async {
   final prefs = await SharedPreferences.getInstance();
   final id = prefs.getInt('key') ?? 0;
-
   var response = await http.get(
       Uri.parse("https://sensor-quali.herokuapp.com/Usuario/${id}"),
       headers: {"Accept": "application/json"});

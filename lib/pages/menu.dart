@@ -5,10 +5,9 @@ import 'package:tcc/pages/login.dart';
 import 'package:tcc/pages/atualiza_perfil.dart';
 import 'package:tcc/pages/consult_reserv.dart';
 import 'package:tcc/pages/central_ajuda.dart';
-import 'package:tcc/pages/user_page.dart';
+import 'package:tcc/services/user_page.dart';
 import 'package:tcc/pages/config_wi-fi.dart';
 import 'package:shared_preferences/shared_preferences.dart';
-
 
 class MenuPrincipal extends StatefulWidget {
   const MenuPrincipal({Key? key}) : super(key: key);
@@ -17,28 +16,30 @@ class MenuPrincipal extends StatefulWidget {
   State<MenuPrincipal> createState() => _MenuPrincipal();
 }
 
-
 class _MenuPrincipal extends State<MenuPrincipal> {
   final padding = const EdgeInsets.symmetric(horizontal: 20);
   final Uri _url = Uri.parse('https://ol-anaa.github.io/tcc_pagesWeb/');
 
   String? nome;
-
   void initPreferences() async {
     final prefs = await SharedPreferences.getInstance();
-    nome = prefs.getString('StringName') ?? '';
+
+    setState(() {
+      nome = prefs.getString('StringName') ?? '';
+    });
+    
   }
 
-   @override
+  @override
   void initState() {
     super.initState();
     initPreferences();
   }
 
   Widget build(BuildContext context) {
-    String  name = nome ?? '';
     const BemVindo = 'Seja bem-vindo(a)!';
-    const urlImage = 'https://cdn.maioresemelhores.com/imagens/mm-gatos-1-cke.jpg'; //Trazer banco
+    const urlImage =
+        'https://cdn.maioresemelhores.com/imagens/mm-gatos-1-cke.jpg'; //Trazer banco
 
     return Drawer(
       child: Material(
@@ -47,11 +48,11 @@ class _MenuPrincipal extends State<MenuPrincipal> {
           children: <Widget>[
             buildHeader(
               urlImage: urlImage,
-              name: name,
+              name: nome ?? '',
               texto: BemVindo,
               onCliked: () => Navigator.of(context).push(MaterialPageRoute(
                 builder: (context) => UserPage(
-                  name: name,
+                  name: nome ?? '',
                   urlImage: urlImage,
                 ),
               )),
@@ -90,22 +91,19 @@ class _MenuPrincipal extends State<MenuPrincipal> {
                   const Divider(color: Colors.white70),
                   const SizedBox(height: 48),
                   buildMenuItem(
-                    text: 'Funcionamento',
-                    icon: Icons.book_rounded,
-                    onClicked: () => _launchUrl()
-                  ),
+                      text: 'Funcionamento',
+                      icon: Icons.book_rounded,
+                      onClicked: () => _launchUrl()),
                   const SizedBox(height: 48),
                   buildMenuItem(
-                    text: 'Novidades',
-                    icon: Icons.notifications,
-                    onClicked: () => _launchUrl()
-                  ),
+                      text: 'Novidades',
+                      icon: Icons.notifications,
+                      onClicked: () => _launchUrl()),
                   const SizedBox(height: 48),
                   buildMenuItem(
-                    text: 'Conheça o projeto',
-                    icon: Icons.emoji_objects,
-                    onClicked: () => _launchUrl()
-                  ),
+                      text: 'Conheça o projeto',
+                      icon: Icons.emoji_objects,
+                      onClicked: () => _launchUrl()),
                   const SizedBox(height: 24),
                   const Divider(color: Colors.white70),
                   const SizedBox(height: 48),
@@ -168,7 +166,8 @@ class _MenuPrincipal extends State<MenuPrincipal> {
     return TextField(
       style: const TextStyle(color: color),
       decoration: InputDecoration(
-        contentPadding: const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
+        contentPadding:
+            const EdgeInsets.symmetric(horizontal: 20, vertical: 15),
         hintText: 'Search',
         hintStyle: const TextStyle(color: color),
         prefixIcon: const Icon(Icons.search, color: color),
@@ -235,13 +234,12 @@ class _MenuPrincipal extends State<MenuPrincipal> {
           builder: (context) => login(),
         ));
         break;
-        
     }
   }
 
-Future<void> _launchUrl() async {
-  if (!await launchUrl(_url)) {
-    throw 'Could not launch $_url';
+  Future<void> _launchUrl() async {
+    if (!await launchUrl(_url)) {
+      throw 'Could not launch $_url';
+    }
   }
-}
 }

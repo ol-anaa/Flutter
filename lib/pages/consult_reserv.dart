@@ -9,12 +9,15 @@ import 'package:tcc/pages/menu.dart';
 import 'package:tcc/services/Reserv.dart';
 import 'package:tcc/pages/novo_reserv.dart';
 
+//Aqui preciso fazer o usúario que não tem um reservatório recerber uma mensagem, além de ver o itemBuider
+
 Future<List<Reserv>> fetchData() async {
   final prefs = await SharedPreferences.getInstance();
   final id = prefs.getInt('key') ?? 0;
- 
-  var response =
-      await http.get(Uri.parse("https://sensor-quali.herokuapp.com/Reservatorio_User/${id}"), headers: {"Accept": "application/json"});
+
+  var response = await http.get(
+      Uri.parse("https://sensor-quali.herokuapp.com/Reservatorio/${id}"),
+      headers: {"Accept": "application/json"});
   if (response.statusCode == 200) {
     List jsonResponse = json.decode(response.body);
     return jsonResponse.map((data) => Reserv.fromJson(data)).toList();
@@ -76,37 +79,21 @@ class _reserv extends State<consult_reserv> with TickerProviderStateMixin {
       body: Center(
         child: FutureBuilder<List<Reserv>>(
           future: futureData,
-          builder: (context, AsyncSnapshot<List<Reserv>> snap) {
-            if (snap.connectionState != ConnectionState.done) {
-              return const Center(child: CircularProgressIndicator());
+          builder: (context, snapshot) {
+            if (snapshot.hasData) {
+              return ListView.builder(
+                  itemCount: snapshot.data!.length,
+                  itemBuilder: (context, index) {
+                    Reserv futureData = snapshot.data![index];
+                    return ListTile(
+                      title: Text(futureData.nome!),
+                      subtitle: Text('Próxima limpeza: '+futureData.dt_prox!),
+                    );
+                  });
+            } else if (snapshot.hasError) {
+              return Text(snapshot.error.toString());
             }
-            return NotificationListener<UserScrollNotification>(
-              onNotification: (scroll) {
-                if (scroll.direction == ScrollDirection.reverse && showFAB) {
-                  _controller.reverse();
-                  showFAB = false;
-                } else if (scroll.direction == ScrollDirection.forward &&
-                    !showFAB) {
-                  _controller.forward();
-                  showFAB = true;
-                }
-                return true;
-              },
-              child: ListView.separated(
-                itemCount: 1,
-                itemBuilder: (BuildContext context, int index) {
-                  final Reserv reservatorio = snap.data![index];
-                  return ListTile(
-                    leading: const CircleAvatar(
-                        // backgroundImage: NetworkImage(reservatorio.imgReserv),
-                        ),
-                    title: Text('Local: ${reservatorio.local}'),
-                    subtitle: Text('Descrição: ${reservatorio.Descricao}'),
-                  );
-                },
-                separatorBuilder: (__, _) => const Divider(),
-              ),
-            );
+            return const CircularProgressIndicator();
           },
         ),
       ),

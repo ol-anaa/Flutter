@@ -132,7 +132,7 @@ class _NewReserv extends State<ReservPage> {
                             style: const TextStyle(fontSize: 20),
                             validator: (value) {
                               if (value!.isEmpty ||
-                                  !RegExp(r'(^[0-9]*$)').hasMatch(value)) {
+                                  !RegExp(r"^[0-9]{5}-[0-9]{3}").hasMatch(value)) {
                                 return 'Campo inválido';
                               }
                               return null;
@@ -281,15 +281,15 @@ class _NewReserv extends State<ReservPage> {
     final prefs = await SharedPreferences.getInstance();
     final id = prefs.getInt('key') ?? 0;
 
-    Response response = await _dio.post("/Reservatorio_User/Incluir", data: {
-      "id_usuario": id,
-      "nome_reserv": _controllerNome.text,
+    Response response = await _dio.post("/Reservatorio/Incluir", data: {
+      "id_user": id,
+      "nome": _controllerNome.text,
       "cep": _controllerCEP.text,
       "descricao": _controllerDescricao.text,
-      "local_reserv": _controllerLocal.text,
+      "local": _controllerLocal.text,
       "tipo": _controllerTipo.text,
-      "data_ultlimp": "24/11/2022",
-      "data_proxlimp": "24/11/2022"
+      "dt_ult": "03/12/2022",
+      "dt_prox": "03/12/2022"
     });
     if (response.statusCode == 201) {
         Navigator.push(

@@ -1,6 +1,9 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import 'package:tcc/pages/login.dart';
+import 'package:tcc/pages/redefinir_senha.dart';
 
 class esqSenha extends StatefulWidget {
   const esqSenha({Key? key}) : super(key: key);
@@ -14,8 +17,21 @@ realmente? Coisas a se pensar se sobrar tempo. */
 
 class _esqSenha extends State<esqSenha> {
   final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
 
   final TextEditingController _controllerEmail = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -152,8 +168,7 @@ class _esqSenha extends State<esqSenha> {
                         Navigator.push(
                           context,
                           MaterialPageRoute(
-                            builder: (BuildContext context) => const login()
-                          ),
+                              builder: (BuildContext context) => const login()),
                         ),
                       },
                     ),
@@ -173,5 +188,25 @@ class _esqSenha extends State<esqSenha> {
       return;
     }
     _formKey.currentState!.save();
+    submitEmail();
+  }
+
+  void submitEmail() async {
+    Response response = await _dio.post("/Usuario/ValidarEmail", data: {"email": _controllerEmail.text});
+      Map res = response?.data;
+      int id = res["id_usuario"];
+
+    if (response.statusCode == 200) {
+      final prefs = await SharedPreferences.getInstance();
+      await prefs.setInt('keySenha', id);
+
+      Navigator.push(
+          context,
+          MaterialPageRoute(
+            builder: (BuildContext context) => red_senha(),
+          ),
+        );
+
+    }
   }
 }

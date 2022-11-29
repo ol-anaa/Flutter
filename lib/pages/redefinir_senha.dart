@@ -1,8 +1,33 @@
 import 'package:flutter/material.dart';
+import 'package:dio/dio.dart';
+import 'package:shared_preferences/shared_preferences.dart';
+
 import 'package:tcc/pages/login.dart';
 
-class red_senha extends StatelessWidget {
+class red_senha extends StatefulWidget {
   const red_senha({Key? key}) : super(key: key);
+
+  @override
+  State<red_senha> createState() => _red_senha();
+}
+
+class _red_senha extends State<red_senha> {
+  final _formKey = GlobalKey<FormState>();
+  late Dio _dio;
+
+  final TextEditingController _controllerSenha = TextEditingController();
+
+  @override
+  void initState() {
+    super.initState();
+
+    BaseOptions options = new BaseOptions(
+      baseUrl: "https://sensor-quali.herokuapp.com",
+      connectTimeout: 5000,
+    );
+
+    _dio = new Dio(options);
+  }
 
   @override
   Widget build(BuildContext context) {
@@ -52,19 +77,30 @@ class red_senha extends StatelessWidget {
                 ),
               ],
             ),
-            Column(
-              children: const [
-                Center(
-                  child: Text(
-                    'Uma mensagem de redefinição de senha foi envida para seu email',
-                    style: TextStyle(
-                      fontSize: 20,
-                      color: Colors.white,
-                      fontFamily: 'Roboto Condensed',
-                    ),
+            Form(
+              key: _formKey,
+              child: TextFormField(
+                controller: _controllerSenha,
+                keyboardType: TextInputType.visiblePassword,
+                obscureText: true,
+                autofocus: true,
+                decoration: const InputDecoration(
+                  icon: Icon(Icons.vpn_key, size: 30.0),
+                  labelText: "Senha",
+                  labelStyle: TextStyle(
+                    color: Colors.black38,
+                    fontWeight: FontWeight.w400,
+                    fontSize: 20,
                   ),
                 ),
-              ],
+                style: const TextStyle(fontSize: 20),
+                validator: (value) {
+                  if (value!.isEmpty) {
+                    return 'Campo inválido';
+                  }
+                  return null;
+                },
+              ),
             ),
             const SizedBox(
               height: 30,
@@ -87,37 +123,42 @@ class red_senha extends StatelessWidget {
                     ),
                   ),
                 ),
-                onPressed: () {
-                  Navigator.push(
-                    context,
-                    MaterialPageRoute(
-                      builder: (BuildContext context) => const login()
-                    ),
-                  );
-                },
+                onPressed: () => _submit(),
               ),
             ),
             const SizedBox(
               height: 20,
             ),
-            Container(
-              height: 40,
-              child: TextButton(
-                child: const Text(
-                  "Não recebi o email",
-                  style: TextStyle(
-                    color: Colors.white,
-                    fontSize: 20,
-                    fontFamily: 'Roboto Condensed',
-                  ),
-                  textAlign: TextAlign.center,
-                ),
-                onPressed: () => {},
-              ),
-            ),
           ],
         ),
       ),
     );
+  }
+
+  void _submit() {
+    final isValid = _formKey.currentState!.validate();
+    if (!isValid) {
+      return;
+    }
+    _formKey.currentState!.save();
+    submitSenha();
+  }
+
+  void submitSenha() async {
+    final prefs = await SharedPreferences.getInstance();
+    final id = prefs.getInt('keySenha') ?? 0;
+
+    Response response = await _dio.post("/Usuario/AlterarSenha/${id}", data: {
+      "senha": _controllerSenha.text,
+    });
+
+    if (response.statusCode == 200) {
+      Navigator.push(
+        context,
+        MaterialPageRoute(
+          builder: (BuildContext context) => login(),
+        ),
+      );
+    }
   }
 }

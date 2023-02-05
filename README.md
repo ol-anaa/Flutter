@@ -1,4 +1,4 @@
-<h1> TCC - Dart + API Rest 📱 </h1>
+<h1> Yara - Dart + API Rest 📱 </h1>
 
 Trabalho de Conclusão de Curso do COTUCA
    <br/>

@@ -3,7 +3,7 @@
 Trabalho de Conclusão de Curso do COTUCA
    <br/>
    <br/>
-  <a href="https://github.com/ol-anaa/YaraPagWeb">💻</a> Páginas Web
+  <a href="https://github.com/ol-anaa/YaraPagWeb">💻</a> Página Web
   <br/>
   <a href="https://github.com/Adriysun/NodeAPI_TCC">🐘</a> API Rest
 
